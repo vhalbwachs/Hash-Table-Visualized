@@ -13,7 +13,7 @@
       var i = $scope.getIndexBelowMaxForKey(k, this._limit);
       var tupleArray = this._storage.get(i) || [];
 
-      for( var j = 0; j < tupleArray.length; j++ ){
+      for(var j = 0; j < tupleArray.length; j++){
         var tuple = tupleArray[j];
         if( tuple[0] === k ){
           tuple[1] = v;
@@ -49,12 +49,12 @@
       var i = $scope.getIndexBelowMaxForKey(k, this._limit);
       var tupleArray = this._storage.get(i) || [];
 
-      for( var j = 0; j < tupleArray.length; j++ ){
+      for(var j = 0; j < tupleArray.length; j++){
         var tuple = tupleArray[j];
-        if( tuple[0] === k ){
+        if(tuple[0] === k){
           tupleArray.splice(j, 1);
           this._size--;
-          if( this._size < this._limit * 0.25 ){
+          if(this._size < this._limit * 0.25){
             this.resize(Math.floor(this._limit/2));
           }
         }
@@ -70,8 +70,8 @@
       var self = this;
 
       oldStorage.each(function (tupleArray) {
-        if( !tupleArray ){ return; }
-        for( var i = 0; i < tupleArray.length; i++ ){
+        if(!tupleArray){ return; }
+        for(var i = 0; i < tupleArray.length; i++){
           var tuple = tupleArray[i];
           self.insert(tuple[0], tuple[1])
         }
