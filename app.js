@@ -1,15 +1,15 @@
-(function() {
+(function () {
   var app = angular.module('hashTable', []);
   app.controller('hashControl', function ($scope) {
 
-    $scope.HashTable = function(){
+    $scope.HashTable = function () {
       this._size = 0;
-      this._limit = 8;
+      this._limit = 4;
       this._storage = $scope.makeLimitedArray(this._limit);
       console.log(this._storage);
     };
 
-    $scope.HashTable.prototype.insert = function(k, v){
+    $scope.HashTable.prototype.insert = function (k, v) {
       var i = $scope.getIndexBelowMaxForKey(k, this._limit);
       var tupleArray = this._storage.get(i) || [];
 
@@ -23,15 +23,16 @@
 
       tupleArray.push([k,v]); // only if key is not in tupleArray
       this._size++;
+      this._storage.set(i, tupleArray);
+
       if( this._size > this._limit * 0.75 ){
         this.resize(this._limit*2);
       }
 
-      this._storage.set(i, tupleArray);
     };
 
-    $scope.HashTable.prototype.retrieve = function(k){
-      var i = getIndexBelowMaxForKey(k, this._limit);
+    $scope.HashTable.prototype.retrieve = function (k) {
+      var i = $scope.getIndexBelowMaxForKey(k, this._limit);
       var tupleArray = this._storage.get(i) || [];
 
       for( var j = 0; j < tupleArray.length; j++ ){
@@ -44,8 +45,8 @@
       return null;
     };
 
-    $scope.HashTable.prototype.remove = function(k){
-      var i = getIndexBelowMaxForKey(k, this._limit);
+    $scope.HashTable.prototype.remove = function (k) {
+      var i = $scope.getIndexBelowMaxForKey(k, this._limit);
       var tupleArray = this._storage.get(i) || [];
 
       for( var j = 0; j < tupleArray.length; j++ ){
@@ -56,12 +57,11 @@
           if( this._size < this._limit * 0.25 ){
             this.resize(Math.floor(this._limit/2));
           }
-          return tuple[1];
         }
       }
     };
 
-    $scope.HashTable.prototype.resize = function(newSize){
+    $scope.HashTable.prototype.resize = function (newSize) {
       var oldStorage = this._storage;
       this._storage = $scope.makeLimitedArray(newSize);
       this._limit = newSize;
@@ -69,7 +69,7 @@
 
       var self = this;
 
-      oldStorage.each(function(tupleArray){
+      oldStorage.each(function (tupleArray) {
         if( !tupleArray ){ return; }
         for( var i = 0; i < tupleArray.length; i++ ){
           var tuple = tupleArray[i];
@@ -78,50 +78,50 @@
       });
     };
 
-    $scope.makeLimitedArray = function(limit){
-
+    $scope.makeLimitedArray = function (limit) {
       var limitedArray = {};
       limitedArray.storage = [];
       for (var i = 0; i < limit; i++) {
         limitedArray.storage[i] = "";
       };
-      limitedArray.get = function(index){
+      limitedArray.get = function (index) {
         checkLimit(index);
         return this.storage[index];
       };
-      limitedArray.set = function(index, value){
+      limitedArray.set = function (index, value) {
         checkLimit(index);
         this.storage[index] = value;
       };
-      limitedArray.each = function(callback){
+      limitedArray.each = function (callback) {
         for(var i = 0; i < this.storage.length; i++){
           callback(this.storage[i], i, this.storage);
         }
       };
 
-      var checkLimit = function(index){
-        if(typeof index !== 'number'){ throw new Error('setter requires a numeric index for its first argument'); }
-        if(limit <= index){ throw new Error('Error trying to access an over-the-limit index'); }
+      var checkLimit = function (index) {
+        if(typeof index !== 'number') { throw new Error('setter requires a numeric index for its first argument'); }
+        if(limit <= index) { throw new Error('Error trying to access an over-the-limit index'); }
       };
 
       return limitedArray;
     };
 
-    // This is a "hashing function". You don't need to worry about it, just use it
-    // to turn any string into an integer that is well-distributed between the
-    // numbers 0 and `max`
-    $scope.getIndexBelowMaxForKey = function(str, max){
+    $scope.getIndexBelowMaxForKey = function (str, max) {
+      if (!str) {return false}
       var hash = 0;
       for (var i = 0; i < str.length; i++) {
         hash = (hash<<5) + hash + str.charCodeAt(i);
-        hash = hash & hash; // Convert to 32bit integer
+        hash = hash & hash;
         hash = Math.abs(hash);
       }
       return hash % max;
     };
-    $scope.newValue;
-    $scope.newKey;
-
+    $scope.evalRowClass = function (val, index, limit) {
+      console.log(val, index, limit);
+      if (this.getIndexBelowMaxForKey(val, limit) === index) {
+        return "list-group-item-info"
+      }
+    };
     $scope.ht = new $scope.HashTable();  
   });
 })();

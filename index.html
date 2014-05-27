@@ -6,15 +6,11 @@
   <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
   <script type="text/javascript" src="app.js"></script>
 </head>
-<body ng-controller="hashControl as hash">
-  <div class="jumbotron">   
-    <h1>Hash Table Visualizer</h1>
-  </div>
+<body ng-controller="hashControl as hash">  
   <div class="container-fluid">
+    <h1>Hash Table Visualizer</h1>
     <div class="row">
-
-      <!-- start size + limit info -->
-      <div class="col-xs-4">   
+      <div class="col-sm-3">   
         <div class="panel panel-default">
           <div class="panel-heading">
             <h3 class="panel-title">
@@ -34,25 +30,71 @@
         </div> 
         <div class="panel panel-default">
           <div class="panel-heading">
-            <h3 class="panel-title">
-              Insertion and Retrieval
-            </h3>
-          </div>     
-          <div class="input-group">
-            <span class="input-group-addon">Key&nbsp;&nbsp;</span>
-            <input type="text" class="form-control" ng-model="newKey">
-          </div>      
-          <div class="input-group">
-            <span class="input-group-addon">Value</span>
-            <input type="text" class="form-control" ng-model="newValue">
-          </div>   
-          <button id="Insert" name="Insert" class="btn btn-primary" ng-click="ht.insert(newKey,newValue)">Insert</button>
-
-            Hash: {{getIndexBelowMaxForKey(newKey, ht._limit)}}
+            <h3 class="panel-title">Insert</h3>
+          </div>
+          <div class="panel-body">    
+            <form class="form-horizontal" role="form" ng-submit="ht.insert(newKey, newValue); newKey=''; newValue=''">
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <input type="text" class="form-control" placeholder="Key" ng-model="newKey" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <input type="text" class="form-control" placeholder="Value" ng-model="newValue" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-11">
+                  <button class="btn btn-primary" type="submit">Insert</button>
+                  <button type="button" class="btn btn-info" ng-show="newKey.length">Hash: {{getIndexBelowMaxForKey(newKey, ht._limit)}}</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Retrieve</h3>
+          </div>
+          <div class="panel-body">    
+            <form class="form-horizontal" role="form" ng-submit="ht.retrieve(retKey); retKey=''">
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <input type="text" class="form-control" placeholder="Key" ng-model="retKey" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-11">
+                  <button class="btn btn-primary" type="submit">Retrieve</button>
+                  <button type="button" class="btn btn-info" ng-show="retKey.length">Hash: {{getIndexBelowMaxForKey(retKey, ht._limit)}}</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Remove</h3>
+          </div>
+          <div class="panel-body">    
+            <form class="form-horizontal" role="form" ng-submit="ht.remove(remKey); remKey=''">
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <input type="text" class="form-control" placeholder="Key" ng-model="remKey" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-11">
+                  <button class="btn btn-primary" type="submit">Remove</button>
+                  <button type="button" class="btn btn-info" ng-show="remKey.length">Hash: {{getIndexBelowMaxForKey(remKey, ht._limit)}}</button>
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
-      <!-- end size + limit info -->
-      <div class="col-xs-8">
+      <div class="col-sm-9">
         <div class="panel panel-default">
           <div class="panel-heading">
             <h3 class="panel-title">
@@ -60,26 +102,18 @@
             </h3>
           </div>
           <ul class="list-group">      
-          <li class="list-group-item" ng-repeat="tuples in ht._storage.storage track by $index">
-          <span>Index: {{$index}}</span>
-          <div class="btn-toolbar" role="toolbar">
-            <div class="btn-group btn-group-sm" ng-repeat="tuple in tuples track by $index" >
-              <button type="button" class="btn btn-default btn-sm" ng-repeat="pair in tuple track by $index">{{pair}}</button>
+            <li class="list-group-item" ng-repeat="tuples in ht._storage.storage track by $index" ng-class="eval = newKey || retKey || remKey; evalRowClass(eval, $index, ht._limit)">
+            <span class="float-left">Index: {{$index}}</span>
+            <div class="btn-toolbar float-right" role="toolbar">
+              <div class="btn-group btn-group-sm float-right" ng-repeat="tuple in tuples track by $index" >
+                <button type="button" class="btn btn-default btn-sm float-right" ng-repeat="pair in tuple track by $index">{{pair}}</button>
+              </div>
             </div>
-          </div>
-          </li>   
+            </li>   
           </ul>
         </div>
       </div>
-<!-- call ht.insert -->
     </div> 
-  {{ht}}
-<div class="btn-toolbar" role="toolbar">
-  <div class="btn-group">
-    <button type="button" class="btn btn-default">Left</button>
-  <button type="button" class="btn btn-default">Middle</button>
-  </div>
-</div>
   </div>
 </body>
 </html>
