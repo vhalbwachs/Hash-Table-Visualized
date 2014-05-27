@@ -1,0 +1,21 @@
+{
+  "name": "Hash-Table-Visualized",
+  "version": "0.0.1",
+  "homepage": "https://github.com/vhalbwachs/Hash-Table-Visualized",
+  "authors": [
+    "Vin Halbwachs <vhalbwachs@gmail.com>"
+  ],
+  "description": "A hash table visualizer using Angular.js",
+  "main": "index.html",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "ng-Fx": "~0.4.0"
+  }
+}

@@ -1,12 +1,11 @@
 (function () {
-  var app = angular.module('hashTable', []);
+  var app = angular.module('hashTable', ['ngAnimate', 'fx.animations']);
   app.controller('hashControl', function ($scope) {
 
     $scope.HashTable = function () {
       this._size = 0;
       this._limit = 4;
       this._storage = $scope.makeLimitedArray(this._limit);
-      console.log(this._storage);
     };
 
     $scope.HashTable.prototype.insert = function (k, v) {
@@ -15,7 +14,7 @@
 
       for(var j = 0; j < tupleArray.length; j++){
         var tuple = tupleArray[j];
-        if( tuple[0] === k ){
+        if(tuple[0] === k){
           tuple[1] = v;
           return;
         }
@@ -25,7 +24,7 @@
       this._size++;
       this._storage.set(i, tupleArray);
 
-      if( this._size > this._limit * 0.75 ){
+      if(this._size > this._limit * 0.75){
         this.resize(this._limit*2);
       }
 
@@ -35,13 +34,14 @@
       var i = $scope.getIndexBelowMaxForKey(k, this._limit);
       var tupleArray = this._storage.get(i) || [];
 
-      for( var j = 0; j < tupleArray.length; j++ ){
+      for(var j = 0; j < tupleArray.length; j++){
         var tuple = tupleArray[j];
-        if( tuple[0] === k ){
-          return tuple[1];
+        if(tuple[0] === k){
+          alert('Value: ' + tuple[1]);
+          return null;
         }
       }
-
+      alert('Value not found.');
       return null;
     };
 
@@ -107,7 +107,7 @@
     };
 
     $scope.getIndexBelowMaxForKey = function (str, max) {
-      if (!str) {return false}
+      if (!str) {return false;}
       var hash = 0;
       for (var i = 0; i < str.length; i++) {
         hash = (hash<<5) + hash + str.charCodeAt(i);
@@ -117,11 +117,10 @@
       return hash % max;
     };
     $scope.evalRowClass = function (val, index, limit) {
-      console.log(val, index, limit);
       if (this.getIndexBelowMaxForKey(val, limit) === index) {
         return "list-group-item-info"
       }
     };
-    $scope.ht = new $scope.HashTable();  
+    $scope.ht = new $scope.HashTable();
   });
 })();
