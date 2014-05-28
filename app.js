@@ -1,10 +1,13 @@
 (function () {
   var app = angular.module('hashTable', ['ngAnimate', 'fx.animations']);
-  app.controller('hashControl', function ($scope) {
+  app.controller('hashControl', function ($scope, $timeout) {
+
+    $scope.resizing = false;
+    $scope.interval;
 
     $scope.HashTable = function () {
       this._size = 0;
-      this._limit = 4;
+      this._limit = 2;
       this._storage = $scope.makeLimitedArray(this._limit);
     };
 
@@ -23,11 +26,9 @@
       tupleArray.push([k,v]); // only if key is not in tupleArray
       this._size++;
       this._storage.set(i, tupleArray);
-
       if(this._size > this._limit * 0.75){
         this.resize(this._limit*2);
       }
-
     };
 
     $scope.HashTable.prototype.retrieve = function (k) {
@@ -68,14 +69,24 @@
       this._size = 0;
 
       var self = this;
+      $scope.resizing = true;
+      $scope.interval = 0;
 
       oldStorage.each(function (tupleArray) {
         if(!tupleArray){ return; }
         for(var i = 0; i < tupleArray.length; i++){
-          var tuple = tupleArray[i];
-          self.insert(tuple[0], tuple[1])
+          (function (i) {
+            var tuple = this[i];
+            $timeout(function () {
+              self.insert(tuple[0], tuple[1]);
+            }, ++$scope.interval * 300);
+          }).call(tupleArray, i);
         }
       });
+
+      $timeout( function() {
+        $scope.resizing = false;
+      }, ++$scope.interval * 300)
     };
 
     $scope.makeLimitedArray = function (limit) {
@@ -94,7 +105,7 @@
       };
       limitedArray.each = function (callback) {
         for(var i = 0; i < this.storage.length; i++){
-          callback(this.storage[i], i, this.storage);
+            callback(this.storage[i], i, this.storage);
         }
       };
 
@@ -116,11 +127,18 @@
       }
       return hash % max;
     };
-    $scope.evalRowClass = function (val, index, limit) {
-      if (this.getIndexBelowMaxForKey(val, limit) === index) {
-        return "list-group-item-info"
+    $scope.evalRowClass = function (val, index, limit, resizing) {
+      if (resizing) {
+        return "list-group-item-warning";
+      } else if (this.getIndexBelowMaxForKey(val, limit) === index) {
+        return "list-group-item-info";
       }
     };
+
+    $scope.evalArrayPanelClass = function () {
+      return this.resizing ? 'panel-warning' : 'panel-default';
+    };
+
     $scope.ht = new $scope.HashTable();
   });
 })();

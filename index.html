@@ -40,6 +40,9 @@
               <span class="badge">{{ht._size}}</span>
               Size
             </li>
+            <li class="list-group-item list-group-item-warning active" ng-show="resizing">
+              Hash Table Resizing
+            </li>
           </ul>
         </div> 
         <div class="panel panel-default">
@@ -110,14 +113,14 @@
         </div>
       </div>
       <div class="col-sm-9">
-        <div class="panel panel-default">
+        <div class="panel" ng-class="evalArrayPanelClass()">
           <div class="panel-heading">
             <h3 class="panel-title">
               Hash Table Storage Array
             </h3>
           </div>
           <ul class="list-group">      
-            <li class="list-group-item" ng-repeat="tuples in ht._storage.storage track by $index" ng-class="eval = newKey || retKey || remKey; evalRowClass(eval, $index, ht._limit)">
+            <li class="list-group-item" ng-repeat="tuples in ht._storage.storage track by $index" ng-class="eval = newKey || retKey || remKey; evalRowClass(eval, $index, ht._limit, resizing)">
             <span>Index: {{$index}}</span>
             <div class="btn-toolbar" role="toolbar">
               <div class="btn-group btn-group-sm fx-zoom-normal" ng-repeat="tuple in tuples track by $index" >
