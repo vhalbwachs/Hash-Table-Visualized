@@ -61,8 +61,8 @@
       var _this = this;
       this.storage = Array(newSize);
       this.limit = newSize;
+      this.resizing = this.size !== 0; //handle case of removing last item and storage resizes to empty
       this.size = 0;
-      this.resizing = true;
       oldStorage.forEach(function (tupleArray) {
         if(!tupleArray){ return; }
         tupleArray.forEach(function (tuple, j) {
