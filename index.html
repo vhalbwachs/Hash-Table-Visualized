@@ -1,28 +1,19 @@
 <!DOCTYPE html>
-<html ng-app="hashTable">
+<html ng-app="hashtable">
 <head>
   <title>Hash Table Visualized</title>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js"></script>
-  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
-  <script type="text/javascript" src="app.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js"></script>
   <script type="text/javascript" src="bower_components/gsap/src/minified/TweenMax.min.js"></script>
   <script type="text/javascript" src="bower_components/angular-animate/angular-animate.min.js"></script>
   <script type="text/javascript" src="bower_components/ng-Fx/dist/ng-Fx.min.js"></script>
-  <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-48043798-1', 'vinhalbwachs.com');
-  ga('send', 'pageview');
-</script>
+  <script type="text/javascript" src="app.js"></script>
 </head>
-<body ng-controller="hashControl as hash">  
-  <div class="jumbotron">   
-    <h1>Hash Table Visualized</h1>
-  </div>
+
+<body ng-controller="hashControl">
   <div class="container-fluid">
+    <div class="page-header">
+      <h1>A Hash Table Visualized <small>With Dynamic Resizing</small></h1>
+    </div>
     <div class="row">
       <div class="col-sm-3">   
         <div class="panel panel-default">
@@ -33,14 +24,15 @@
           </div>
           <ul class="list-group">
             <li class="list-group-item">
-              <span class="badge">{{ht._limit}}</span>
+              <span class="badge">{{hashTable.limit}}</span>
               Limit
             </li>
             <li class="list-group-item">
-              <span class="badge">{{ht._size}}</span>
+              <span class="badge">{{hashTable.size}}</span>
               Size
             </li>
-            <li class="list-group-item list-group-item-warning active" ng-show="resizing">
+            <li class="list-group-item list-group-item-warning active" 
+                ng-show="hashTable.resizing">
               Hash Table Resizing
             </li>
           </ul>
@@ -50,7 +42,7 @@
             <h3 class="panel-title">Insert</h3>
           </div>
           <div class="panel-body">    
-            <form class="form-horizontal" role="form" ng-submit="ht.insert(newKey, newValue); newKey=''; newValue=''">
+            <form class="form-horizontal" role="form" ng-submit="hashTable.insert(newKey, newValue); newKey=''; newValue=''">
               <div class="form-group">
                 <div class="col-sm-12">
                   <input type="text" class="form-control" placeholder="Key" ng-model="newKey" ng-focus="retKey=''; remKey=''" required />
@@ -64,7 +56,7 @@
               <div class="form-group">
                 <div class="col-sm-11">
                   <button class="btn btn-primary" type="submit">Insert</button>
-                  <button type="button" class="btn btn-info" ng-show="newKey.length" disabled="disabled">Hash Sum: {{getIndexBelowMaxForKey(newKey, ht._limit)}}</button>
+                  <button type="button" class="btn btn-info" ng-show="newKey.length" disabled="disabled">Hash Sum: {{hashTable.getIndexBelowMaxForKey(newKey, hashTable.limit)}}</button>
                 </div>
               </div>
             </form>
@@ -75,7 +67,7 @@
             <h3 class="panel-title">Retrieve</h3>
           </div>
           <div class="panel-body">    
-            <form class="form-horizontal" role="form" ng-submit="ht.retrieve(retKey); retKey=''">
+            <form class="form-horizontal" role="form" ng-submit="hashTable.retrieve(retKey); retKey=''">
               <div class="form-group">
                 <div class="col-sm-12">
                   <input type="text" class="form-control" placeholder="Key" ng-model="retKey" ng-focus="newKey=''; remKey=''"required />
@@ -84,7 +76,7 @@
               <div class="form-group">
                 <div class="col-sm-11">
                   <button class="btn btn-primary" type="submit">Retrieve</button>
-                  <button type="button" class="btn btn-info" ng-show="retKey.length" disabled="disabled">Hash Sum: {{getIndexBelowMaxForKey(retKey, ht._limit)}}</button>
+                  <button type="button" class="btn btn-info" ng-show="retKey.length" disabled="disabled">Hash Sum: {{hashTable.getIndexBelowMaxForKey(retKey, hashTable.limit)}}</button>
                   {{resultArr}}
                 </div>
               </div>
@@ -96,7 +88,7 @@
             <h3 class="panel-title">Remove</h3>
           </div>
           <div class="panel-body">    
-            <form class="form-horizontal" role="form" ng-submit="ht.remove(remKey); remKey=''">
+            <form class="form-horizontal" role="form" ng-submit="hashTable.remove(remKey); remKey=''">
               <div class="form-group">
                 <div class="col-sm-12">
                   <input type="text" class="form-control" placeholder="Key" ng-model="remKey" ng-focus="newKey=''; retKey=''" required />
@@ -105,7 +97,7 @@
               <div class="form-group">
                 <div class="col-sm-11">
                   <button class="btn btn-primary" type="submit">Remove</button>
-                  <button type="button" class="btn btn-info" ng-show="remKey.length" disabled="disabled">Hash Sum: {{getIndexBelowMaxForKey(remKey, ht._limit)}}</button>
+                  <button type="button" class="btn btn-info" ng-show="remKey.length" disabled="disabled">Hash Sum: {{hashTable.getIndexBelowMaxForKey(remKey, hashTable.limit)}}</button>
                 </div>
               </div>
             </form>
@@ -113,18 +105,23 @@
         </div>
       </div>
       <div class="col-sm-9">
-        <div class="panel" ng-class="evalArrayPanelClass()">
+        <div class="panel" 
+             ng-class="hashTable.resizing ? 'panel-warning' : 'panel-default'">
           <div class="panel-heading">
             <h3 class="panel-title">
               Hash Table Storage Array
             </h3>
           </div>
           <ul class="list-group">      
-            <li class="list-group-item" ng-repeat="tuples in ht._storage.storage track by $index" ng-class="eval = newKey || retKey || remKey; evalRowClass(eval, $index, ht._limit, resizing)">
-            <span>Index: {{$index}}</span>
+            <li class="list-group-item storage-array" 
+                ng-repeat="tuples in hashTable.storage track by $index" 
+                ng-class="{'list-group-item-warning':hashTable.resizing,
+                           'list-group-item-info': hashTable.getIndexBelowMaxForKey(newKey || retKey || remKey, hashTable.limit) === $index}"
+                class="panel">
+            <span class="badge pull-left index">Index: {{$index}}</span>
             <div class="btn-toolbar" role="toolbar">
               <div class="btn-group btn-group-sm fx-zoom-normal" ng-repeat="tuple in tuples track by $index" >
-                <button type="button" class="btn btn-sm" ng-repeat="pair in tuple track by $index" ng-class="{'btn-info': $first, 'btn-default': $last}">{{pair}}</button>
+                <button type="button" class="btn" ng-repeat="pair in tuple track by $index" ng-class="{'btn-info': $first, 'btn-default': $last}">{{pair}}</button>
               </div>
             </div>
             </li>   
@@ -133,5 +130,15 @@
       </div>
     </div> 
   </div>
+  <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+  <style type="text/css">
+  .storage-array {
+    min-height: 51px;
+  }
+  .index {
+    margin-top: 6px;
+    margin-right: 8px;
+  }
+  </style>
 </body>
 </html>

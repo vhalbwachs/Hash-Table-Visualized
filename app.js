@@ -1,19 +1,14 @@
-(function () {
-  var app = angular.module('hashTable', ['ngAnimate', 'fx.animations']);
-  app.controller('hashControl', function ($scope, $timeout) {
-
-    $scope.resizing = false;
-    $scope.interval;
-
-    $scope.HashTable = function () {
-      this._size = 0;
-      this._limit = 2;
-      this._storage = $scope.makeLimitedArray(this._limit);
-    };
-
-    $scope.HashTable.prototype.insert = function (k, v) {
-      var i = $scope.getIndexBelowMaxForKey(k, this._limit);
-      var tupleArray = this._storage.get(i) || [];
+(function(){
+  angular.module('hashtable', ['ngAnimate', 'fx.animations'])
+  .factory('HashTable', function ($timeout) {
+    var ht = {};
+    ht.size = 0;
+    ht.limit = 2;
+    ht.resizing = false;
+    ht.storage = Array(ht.limit);
+    ht.insert = function (k, v) {
+      var i = this.getIndexBelowMaxForKey(k, this.limit);
+      var tupleArray = this.storage[i] || [];
 
       for(var j = 0; j < tupleArray.length; j++){
         var tuple = tupleArray[j];
@@ -24,16 +19,15 @@
       }
 
       tupleArray.push([k,v]); // only if key is not in tupleArray
-      this._size++;
-      this._storage.set(i, tupleArray);
-      if(this._size > this._limit * 0.75){
-        this.resize(this._limit*2);
+      this.size++;
+      this.storage[i] = tupleArray;
+      if(this.size > this.limit * 0.75){
+        this.resize(this.limit*2);
       }
     };
-
-    $scope.HashTable.prototype.retrieve = function (k) {
-      var i = $scope.getIndexBelowMaxForKey(k, this._limit);
-      var tupleArray = this._storage.get(i) || [];
+    ht.retrieve = function (k) {
+      var i = this.getIndexBelowMaxForKey(k, this.limit);
+      var tupleArray = this.storage[i] || [];
 
       for(var j = 0; j < tupleArray.length; j++){
         var tuple = tupleArray[j];
@@ -45,79 +39,41 @@
       alert('Value not found.');
       return null;
     };
-
-    $scope.HashTable.prototype.remove = function (k) {
-      var i = $scope.getIndexBelowMaxForKey(k, this._limit);
-      var tupleArray = this._storage.get(i) || [];
+    ht.remove = function (k) {
+      var i = this.getIndexBelowMaxForKey(k, this.limit);
+      var tupleArray = this.storage[i] || [];
 
       for(var j = 0; j < tupleArray.length; j++){
         var tuple = tupleArray[j];
         if(tuple[0] === k){
           tupleArray.splice(j, 1);
-          this._size--;
-          if(this._size < this._limit * 0.25){
-            this.resize(Math.floor(this._limit/2));
+          this.size--;
+          if(this.size < this.limit * 0.25){
+            this.resize(Math.floor(this.limit/2));
           }
         }
       }
     };
-
-    $scope.HashTable.prototype.resize = function (newSize) {
-      var oldStorage = this._storage;
-      this._storage = $scope.makeLimitedArray(newSize);
-      this._limit = newSize;
-      this._size = 0;
-
-      var self = this;
-      $scope.resizing = true;
-      $scope.interval = 0;
-
-      oldStorage.each(function (tupleArray) {
+    ht.resize = function (newSize) {
+      var oldStorage = this.storage;
+      var counter = 0;
+      var resolved = 0;
+      var _this = this;
+      this.storage = Array(newSize);
+      this.limit = newSize;
+      this.size = 0;
+      this.resizing = true;
+      oldStorage.forEach(function (tupleArray) {
         if(!tupleArray){ return; }
-        for(var i = 0; i < tupleArray.length; i++){
-          (function (i) {
-            var tuple = this[i];
-            $timeout(function () {
-              self.insert(tuple[0], tuple[1]);
-            }, ++$scope.interval * 300);
-          }).call(tupleArray, i);
-        }
+        tupleArray.forEach(function (tuple, j) {
+            $timeout(function(){
+              _this.insert(tuple[0], tuple[1])
+              _this.resizing = ++resolved !== counter;
+            }, 500 * ++counter);
+        })
       });
-
-      $timeout( function() {
-        $scope.resizing = false;
-      }, ++$scope.interval * 300)
     };
-
-    $scope.makeLimitedArray = function (limit) {
-      var limitedArray = {};
-      limitedArray.storage = [];
-      for (var i = 0; i < limit; i++) {
-        limitedArray.storage[i] = "";
-      };
-      limitedArray.get = function (index) {
-        checkLimit(index);
-        return this.storage[index];
-      };
-      limitedArray.set = function (index, value) {
-        checkLimit(index);
-        this.storage[index] = value;
-      };
-      limitedArray.each = function (callback) {
-        for(var i = 0; i < this.storage.length; i++){
-            callback(this.storage[i], i, this.storage);
-        }
-      };
-
-      var checkLimit = function (index) {
-        if(typeof index !== 'number') { throw new Error('setter requires a numeric index for its first argument'); }
-        if(limit <= index) { throw new Error('Error trying to access an over-the-limit index'); }
-      };
-
-      return limitedArray;
-    };
-
-    $scope.getIndexBelowMaxForKey = function (str, max) {
+    ht.getIndexBelowMaxForKey = function (str, max) {
       if (!str) {return false;}
       var hash = 0;
       for (var i = 0; i < str.length; i++) {
@@ -127,18 +83,9 @@
       }
       return hash % max;
     };
-    $scope.evalRowClass = function (val, index, limit, resizing) {
-      if (resizing) {
-        return "list-group-item-warning";
-      } else if (this.getIndexBelowMaxForKey(val, limit) === index) {
-        return "list-group-item-info";
-      }
-    };
-
-    $scope.evalArrayPanelClass = function () {
-      return this.resizing ? 'panel-warning' : 'panel-default';
-    };
-
-    $scope.ht = new $scope.HashTable();
+    return ht;
+  })
+  .controller('hashControl', function ($scope, HashTable, $timeout) {
+    $scope.hashTable = HashTable;
   });
 })();
