@@ -65,12 +65,13 @@
       this.size = 0;
       oldStorage.forEach(function (tupleArray) {
         if(!tupleArray){ return; }
-        tupleArray.forEach(function (tuple, j) {
-            $timeout(function(){
-              _this.insert(tuple[0], tuple[1])
-              _this.resizing = ++resolved !== counter;
-            }, 500 * ++counter);
-        })
+        tupleArray.forEach(function (tuple) {
+          $timeout(function() {
+            _this.insert(tuple[0], tuple[1]);
+            resolved++;
+            if (resolved === counter) { _this.resizing = false; }
+          }, 500 * ++counter);
+        });
       });
     };
     ht.getIndexBelowMaxForKey = function (str, max) {
